@@ -30,5 +30,5 @@ def preprocess_sentence(sentence):
 
     # 给句子加上开始和结束标记
     # 以便模型知道何时开始和结束预测
-    w = '<start> ' + w + ' <end>'
+    w = '[start] ' + w + ' [end]'
     return w

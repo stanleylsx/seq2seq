@@ -17,6 +17,6 @@ configs = {
     # 任务选择
     'task': 'translation',
     'data_path': 'datasets/translation/spa-eng/spa.csv',
-    'token_file': 'datasets/translation/spa-eng/token2id',
+    'token_dir': 'datasets/translation/spa-eng/',
 
 }
