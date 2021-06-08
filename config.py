@@ -30,4 +30,6 @@ configs = {
     # RNN Type:
     # 可选:lstm, gru
     'rnn_type': 'gru',
+    # 训练epoch
+    'epoch': 30,
 }
