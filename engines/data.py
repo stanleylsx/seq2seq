@@ -27,21 +27,25 @@ class TranslationDataManager:
         self.origin_vocab_size = 0
         self.target_vocab_size = 0
 
-        # if not os.path.isdir(self.token_dir):
-        #     self.logger.info('vocab files not exist...')
-        # else:
-        #     self.vocab_size = len(self.token2id)
+        self.origin_token2id, self.origin_id2token = {}, {}
+        self.target_token2id, self.target_id2token = {}, {}
 
-    # def load_vocab(self):
-    #     token2id, id2token = {}, {}
-    #     with open(self.token_file, 'r', encoding='utf-8') as infile:
-    #         for row in infile:
-    #             row = row.strip()
-    #             token, token_id = row.split('\t')[0], int(row.split('\t')[1])
-    #             token2id[token] = token_id
-    #             id2token[token_id] = token
-    #     self.vocab_size = len(token2id)
-    #     return token2id, id2token
+        if not os.path.isdir(self.token_dir + '/origin_token2id'):
+            self.logger.info('vocab files not exist...')
+        else:
+            self.origin_token2id, self.origin_id2token, self.origin_vocab_size = self.load_vocab('origin')
+            self.target_token2id, self.target_id2token, self.target_vocab_size = self.load_vocab('target')
+
+    def load_vocab(self, name):
+        token2id, id2token = {}, {}
+        with open(self.token_dir + '/' + name + '_token2id', 'r', encoding='utf-8') as infile:
+            for row in infile:
+                row = row.strip()
+                token, token_id = row.split('\t')[0], int(row.split('\t')[1])
+                token2id[token] = token_id
+                id2token[token_id] = token
+        vocab_size = len(token2id)
+        return token2id, id2token, vocab_size
 
     def tokenize(self, sentences, name):
         tokenizer = tf.keras.preprocessing.text.Tokenizer(filters='')
@@ -57,14 +61,16 @@ class TranslationDataManager:
                 outfile.write(token + '\t' + str(token_id) + '\n')
         tensor = tokenizer.texts_to_sequences(sentences)
         tensor = tf.keras.preprocessing.sequence.pad_sequences(tensor, padding='post')
-        return tensor, vocab_size
+        return tensor, vocab_size, token2id, id2token
 
     def get_dataset(self):
         dataset = pd.read_csv(self.data_path, encoding='utf-8')
         dataset['origin'] = dataset.origin.apply(preprocess_sentence)
-        origin_tensor, self.origin_vocab_size = self.tokenize(dataset['origin'], 'origin')
+        origin_tensor, self.origin_vocab_size, self.origin_token2id, self.origin_id2token = self.tokenize(
+            dataset['origin'], 'origin')
         dataset['target'] = dataset.target.apply(preprocess_sentence)
-        target_tensor, self.target_vocab_size = self.tokenize(dataset['target'], 'target')
+        target_tensor, self.target_vocab_size, self.target_token2id, self.target_id2token = self.tokenize(
+            dataset['target'], 'target')
         origin_tensor_train, origin_tensor_val, target_tensor_train, target_tensor_val = train_test_split(
             origin_tensor, target_tensor, test_size=0.2)
         dataset = tf.data.Dataset.from_tensor_slices((origin_tensor_train, target_tensor_train))

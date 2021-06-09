@@ -115,10 +115,11 @@ class SequenceToSequence(tf.keras.Model, ABC):
     def call(self, origin_input, target_input):
         encoder_output, encoder_hidden = self.encoder(origin_input)
         decoder_hidden = encoder_hidden
+        decoder_input = tf.expand_dims([targ_lang.word_index['<start>']] * BATCH_SIZE, 1)
         # teach forcing
         for t in range(1, target_input[1]):
             # 将编码器输出 （enc_output） 传送至解码器
-            predictions, dec_hidden, _ = self.decoder(dec_input, decoder_hidden, encoder_output)
+            predictions, dec_hidden, _ = self.decoder(decoder_input, decoder_hidden, encoder_output)
 
 
 
