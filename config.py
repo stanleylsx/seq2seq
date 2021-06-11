@@ -20,16 +20,22 @@ configs = {
     'token_dir': 'datasets/translation/spa-eng/',
     'batch_size': 64,
     # 每print_per_batch打印
-    'print_per_batch': 20,
+    'print_per_batch': 100,
     # 向量维度
     'embedding_dim': 256,
     # 编码器隐藏层维度
-    'encoder_hidden_dim': 1024,
+    'encoder_hidden_dim': 512,
     # 解码器隐藏层维度
-    'decoder_hidden_dim': 1024,
+    'decoder_hidden_dim': 512,
     # RNN Type:
     # 可选:lstm, gru
     'rnn_type': 'gru',
     # 训练epoch
     'epoch': 30,
+    # 最多保存max_to_keep个模型
+    'max_to_keep': 1,
+    # 模型保存的文件夹
+    'checkpoints_dir': 'model/seq2seq',
+    # 模型保存的名字
+    'checkpoint_name': 'seq2seq',
 }
