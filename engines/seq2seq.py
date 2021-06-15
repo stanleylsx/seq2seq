@@ -82,7 +82,7 @@ class Decoder(tf.keras.Model, ABC):
         # 用于注意力
         self.attention = BahdanauAttention(self.hidden_dim)
 
-    @tf.function
+    # @tf.function
     def call(self, x, hidden, encoder_output):
         # 编码器输出 （enc_output） 的形状 == （批大小，最大长度，隐藏层大小）
         context_vector, attention_weights = self.attention(hidden, encoder_output)

@@ -7,7 +7,7 @@
 
 
 # [train, interactive_predict]
-mode = 'train'
+mode = 'interactive_predict'
 
 CUDA_VISIBLE_DEVICES = 0
 # int, -1:CPU, [0,]:GPU

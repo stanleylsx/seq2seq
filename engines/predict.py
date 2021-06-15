@@ -40,8 +40,8 @@ class Predictor:
 
     def translate(self, sentence):
         sentence = preprocess_sentence(sentence)
-        inputs = [self.origin_token2id[i] for i in sentence.split(' ')]
-        inputs = tf.keras.preprocessing.sequence.pad_sequences([inputs], maxlen=self.origin_max_len, padding='post')
+        inputs = [[self.origin_token2id[i] for i in sentence.split(' ')]]
+        inputs = tf.keras.preprocessing.sequence.pad_sequences(inputs, maxlen=int(self.origin_max_len), padding='post')
         inputs = tf.convert_to_tensor(inputs)
 
         encoder_output, encoder_hidden = self.encoder(inputs)
@@ -50,7 +50,7 @@ class Predictor:
 
         result = ''
 
-        for t in range(self.target_max_len):
+        for t in range(int(self.target_max_len)):
             predictions, decoder_hidden, attention_weights = self.decoder(
                 decoder_input, decoder_hidden, encoder_output)
             predicted_id = tf.argmax(predictions[0]).numpy()
@@ -58,7 +58,7 @@ class Predictor:
             if self.target_token2id[predicted_id] == '[end]':
                 return result, sentence
 
-                # the predicted ID is fed back into the model
+            # the predicted ID is fed back into the model
             decoder_input = tf.expand_dims([predicted_id], 0)
         return result, sentence
 
