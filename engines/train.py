@@ -45,6 +45,7 @@ def train(data_manager, logger):
             with tf.GradientTape() as tape:
                 encoder_output, encoder_hidden = encoder(origin_batch_train)
                 decoder_hidden = encoder_hidden
+                batch_size = int(tf.shape(target_batch_train)[0])
                 decoder_input = tf.expand_dims([target_token2id['[start]']] * batch_size, 1)
                 step_loss = 0.0
                 indies = len(target_batch_train[1].numpy())
@@ -71,11 +72,11 @@ def train(data_manager, logger):
                 logger.info('Epoch {} Step {} Loss {:.4f}'.format(i + 1, step, batch_loss))
 
         time_span = (time.time() - start_time) / 60
-        logger('Epoch {} Loss {:.4f}'.format(i + 1, total_loss / steps))
+        logger.info('Epoch {} Loss {:.4f}'.format(i + 1, total_loss / steps))
         logger.info('Time consumption:%.2f(min)' % time_span)
 
         # 每两个epoch保存一次模型
-        if (epoch + 1) % 2 == 0:
+        if (i + 1) % 2 == 0:
             checkpoint_manager.save()
             logger.info('Saved the new model')
     logger.info('Total training time consumption: %.3f(min)' % ((time.time() - very_start_time) / 60))

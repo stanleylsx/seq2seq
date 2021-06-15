@@ -27,14 +27,19 @@ class TranslationDataManager:
         self.origin_vocab_size = 0
         self.target_vocab_size = 0
 
+        self.origin_max_len = 0
+        self.target_max_len = 0
+
         self.origin_token2id, self.origin_id2token = {}, {}
         self.target_token2id, self.target_id2token = {}, {}
 
-        if not os.path.isdir(self.token_dir + '/origin_token2id'):
+        if not os.path.isfile(self.token_dir + '/origin_token2id'):
             self.logger.info('vocab files not exist...')
         else:
-            self.origin_token2id, self.origin_id2token, self.origin_vocab_size = self.load_vocab('origin')
-            self.target_token2id, self.target_id2token, self.target_vocab_size = self.load_vocab('target')
+            self.origin_token2id, self.origin_id2token, self.origin_vocab_size, self.origin_max_len = \
+                self.load_vocab('origin')
+            self.target_token2id, self.target_id2token, self.target_vocab_size, self.target_max_len = \
+                self.load_vocab('target')
 
     def load_vocab(self, name):
         token2id, id2token = {}, {}
@@ -45,7 +50,10 @@ class TranslationDataManager:
                 token2id[token] = token_id
                 id2token[token_id] = token
         vocab_size = len(token2id)
-        return token2id, id2token, vocab_size
+        # 加载语料最大长度
+        with open(self.token_dir + '/' + name + '_max_lens', 'r', encoding='utf-8') as file:
+            max_lens = file.read()
+        return token2id, id2token, vocab_size, max_lens
 
     def tokenize(self, sentences, name):
         tokenizer = tf.keras.preprocessing.text.Tokenizer(filters='')
@@ -61,16 +69,20 @@ class TranslationDataManager:
                 outfile.write(token + '\t' + str(token_id) + '\n')
         tensor = tokenizer.texts_to_sequences(sentences)
         tensor = tf.keras.preprocessing.sequence.pad_sequences(tensor, padding='post')
-        return tensor, vocab_size, token2id, id2token
+        max_len = int(tf.shape(tensor)[-1])
+        # 保存语料最大长度
+        with open(self.token_dir + '/' + name + '_max_lens', 'w', encoding='utf-8') as outfile:
+            outfile.write(str(max_len))
+        return tensor, vocab_size, token2id, id2token, max_len
 
     def get_dataset(self):
         dataset = pd.read_csv(self.data_path, encoding='utf-8')[:3000]
         dataset['origin'] = dataset.origin.apply(preprocess_sentence)
-        origin_tensor, self.origin_vocab_size, self.origin_token2id, self.origin_id2token = self.tokenize(
-            dataset['origin'], 'origin')
+        origin_tensor, self.origin_vocab_size, self.origin_token2id, self.origin_id2token, self.origin_max_len = \
+            self.tokenize(dataset['origin'], 'origin')
         dataset['target'] = dataset.target.apply(preprocess_sentence)
-        target_tensor, self.target_vocab_size, self.target_token2id, self.target_id2token = self.tokenize(
-            dataset['target'], 'target')
+        target_tensor, self.target_vocab_size, self.target_token2id, self.target_id2token, self.target_max_len = \
+            self.tokenize(dataset['target'], 'target')
         origin_tensor_train, origin_tensor_val, target_tensor_train, target_tensor_val = train_test_split(
             origin_tensor, target_tensor, test_size=0.2)
         dataset = tf.data.Dataset.from_tensor_slices((origin_tensor_train, target_tensor_train))

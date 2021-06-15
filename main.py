@@ -23,3 +23,20 @@ if __name__ == '__main__':
             data_manage = TranslationDataManager(logger)
         logger.info('mode: train')
         train(data_manage, logger)
+    elif mode == 'interactive_predict':
+        logger.info(json.dumps(configs, indent=2))
+        if configs['task'] == 'translation':
+            data_manage = TranslationDataManager(logger)
+        else:
+            data_manage = TranslationDataManager(logger)
+        logger.info('mode: translation')
+        from engines.predict import Predictor
+        predictor = Predictor(data_manage, logger)
+        predictor.translate('I moved.')
+        while True:
+            logger.info('please input a sentence (enter [exit] to exit.)')
+            sentence = input()
+            if sentence == 'exit':
+                break
+            result, _ = predictor.translate(sentence)
+            print(result)
