@@ -5,7 +5,6 @@
 # @File : predict.py 
 # @Software: PyCharm
 import tensorflow as tf
-import time
 from config import configs
 from engines.seq2seq import Encoder, Decoder
 from engines.utils.translation_utils import preprocess_sentence
@@ -45,7 +44,7 @@ class Predictor:
         inputs = tf.convert_to_tensor(inputs)
 
         encoder_output, encoder_hidden = self.encoder(inputs)
-        decoder_hidden = encoder_output
+        decoder_hidden = encoder_hidden
         decoder_input = tf.expand_dims([self.target_token2id['[start]']], 0)
 
         result = ''
@@ -54,9 +53,9 @@ class Predictor:
             predictions, decoder_hidden, attention_weights = self.decoder(
                 decoder_input, decoder_hidden, encoder_output)
             predicted_id = tf.argmax(predictions[0]).numpy()
-            result += self.target_id2token[predicted_id] + ' '
-            if self.target_token2id[predicted_id] == '[end]':
+            if self.target_id2token[predicted_id] == '[end]':
                 return result, sentence
+            result += self.target_id2token[predicted_id] + ' '
 
             # the predicted ID is fed back into the model
             decoder_input = tf.expand_dims([predicted_id], 0)

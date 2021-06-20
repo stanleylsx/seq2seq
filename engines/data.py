@@ -76,7 +76,7 @@ class TranslationDataManager:
         return tensor, vocab_size, token2id, id2token, max_len
 
     def get_dataset(self):
-        dataset = pd.read_csv(self.data_path, encoding='utf-8')[:3000]
+        dataset = pd.read_csv(self.data_path, encoding='utf-8')[:30000]
         dataset['origin'] = dataset.origin.apply(preprocess_sentence)
         origin_tensor, self.origin_vocab_size, self.origin_token2id, self.origin_id2token, self.origin_max_len = \
             self.tokenize(dataset['origin'], 'origin')

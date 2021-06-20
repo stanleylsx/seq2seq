@@ -23,6 +23,8 @@ configs = {
     'print_per_batch': 100,
     # 向量维度
     'embedding_dim': 256,
+    # 是否双向
+    'bidirectional': False,
     # 编码器隐藏层维度
     'encoder_hidden_dim': 512,
     # 解码器隐藏层维度

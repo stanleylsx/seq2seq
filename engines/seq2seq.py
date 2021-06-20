@@ -25,6 +25,8 @@ class Encoder(tf.keras.Model, ABC):
                                             return_sequences=True,
                                             return_state=True,
                                             recurrent_initializer='glorot_uniform')
+        if configs['bidirectional']:
+            self.rnn = tf.keras.layers.Bidirectional(self.rnn, merge_mode='concat')
 
     @tf.function
     def call(self, x):
@@ -78,19 +80,20 @@ class Decoder(tf.keras.Model, ABC):
                                             return_sequences=True,
                                             return_state=True,
                                             recurrent_initializer='glorot_uniform')
+        if configs['bidirectional']:
+            self.rnn = tf.keras.layers.Bidirectional(self.rnn, merge_mode='concat')
         self.fc = tf.keras.layers.Dense(vocab_size)
         # 用于注意力
         self.attention = BahdanauAttention(self.hidden_dim)
 
-    # @tf.function
+    @tf.function
     def call(self, x, hidden, encoder_output):
         # 编码器输出 （enc_output） 的形状 == （批大小，最大长度，隐藏层大小）
         context_vector, attention_weights = self.attention(hidden, encoder_output)
         # x 在通过嵌入层后的形状 == （批大小，1，嵌入维度）
         x = self.embedding(x)
         # x 在拼接 （concatenation） 后的形状 == （批大小，1，嵌入维度 + 隐藏层大小）
-        s = tf.expand_dims(context_vector, 1)
-        x = tf.concat([s, x], axis=-1)
+        x = tf.concat([tf.expand_dims(context_vector, 1), x], axis=-1)
         # 将合并后的向量传送到RNN
         output, state = self.rnn(x)
         # 输出的形状 == （批大小 * 1，隐藏层大小）
