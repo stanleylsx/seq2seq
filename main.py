@@ -32,7 +32,7 @@ if __name__ == '__main__':
         logger.info('mode: translation')
         from engines.predict import Predictor
         predictor = Predictor(data_manage, logger)
-        predictor.translate('I moved.')
+        predictor.translate('.')
         while True:
             logger.info('please input a sentence (enter [exit] to exit.)')
             sentence = input()

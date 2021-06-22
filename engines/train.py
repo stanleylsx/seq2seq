@@ -37,39 +37,38 @@ def train(data_manager, logger):
     very_start_time = time.time()
     for i in range(epoch):
         start_time = time.time()
-        total_loss = 0.0
         logger.info('Epoch:{}/{}'.format(i + 1, epoch))
+        total_loss = 0.0
         steps = int(tf.math.ceil(len(datasets) / batch_size))
         for step, batch in tqdm(datasets.shuffle(len(datasets)).batch(batch_size).enumerate()):
+            loss = 0.0
             origin_batch_train, target_batch_train = batch
             with tf.GradientTape() as tape:
                 encoder_output, encoder_hidden = encoder(origin_batch_train)
                 decoder_hidden = encoder_hidden
                 batch_size = int(tf.shape(target_batch_train)[0])
                 decoder_input = tf.expand_dims([target_token2id['[start]']] * batch_size, 1)
-                step_loss = 0.0
                 indies = len(target_batch_train[1].numpy())
                 for t in range(1, indies):
                     # 将编码器输出 （enc_output） 传送至解码器
                     predictions, decoder_hidden, _ = decoder(decoder_input, decoder_hidden, encoder_output)
                     y_true = target_batch_train[:, t]
                     mask = tf.math.logical_not(tf.math.equal(y_true, 0))
-                    loss_vec = tf.losses.sparse_categorical_crossentropy(y_true=y_true, y_pred=predictions)
+                    loss_vec = tf.losses.sparse_categorical_crossentropy(y_true=y_true, y_pred=predictions,
+                                                                         from_logits=True)
                     mask = tf.cast(mask, dtype=loss_vec.dtype)
                     loss_vec = loss_vec * mask
-                    loss = tf.reduce_mean(loss_vec)
-                    step_loss = step_loss + loss
+                    loss += tf.reduce_mean(loss_vec)
                     # using teacher forcing
                     decoder_input = tf.expand_dims(y_true, 1)
-                batch_loss = (step_loss / int(target_batch_train.shape[1]))
-                total_loss += batch_loss
             variables = encoder.trainable_variables + decoder.trainable_variables
-            gradients = tape.gradient(batch_loss, variables)
+            gradients = tape.gradient(loss, variables)
             # 反向传播，自动微分计算
             optimizer.apply_gradients(zip(gradients, variables))
-
+            batch_loss = (loss / int(target_batch_train.shape[1]))
             if step % print_per_batch == 0 and step != 0:
                 logger.info('Epoch {} Step {} Loss {:.4f}'.format(i + 1, step, batch_loss))
+            total_loss += batch_loss
 
         time_span = (time.time() - start_time) / 60
         logger.info('Epoch {} Loss {:.4f}'.format(i + 1, total_loss / steps))
