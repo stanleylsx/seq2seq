@@ -16,9 +16,16 @@ CUDA_VISIBLE_DEVICES = 0
 configs = {
     # 任务选择
     'task': 'translation',
-    'data_path': 'datasets/translation/spa-eng/spa.csv',
+    'data_path': 'datasets/translation/spa-eng/spa-eng.csv',
     'token_dir': 'datasets/translation/spa-eng/',
     'batch_size': 64,
+
+    # 以下设置用在机器翻译中
+    # 原始语言
+    'origin_lang_type': 'spa',
+    # 目标语言
+    'target_lang_type': 'eng',
+
     # 每print_per_batch打印
     'print_per_batch': 100,
     # 向量维度

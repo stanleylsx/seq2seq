@@ -38,7 +38,8 @@ class Predictor:
         logger.info('loading model successfully')
 
     def translate(self, sentence):
-        sentence = preprocess_sentence(sentence)
+        origin_lang_type = configs['origin_lang_type']
+        sentence = preprocess_sentence(sentence, origin_lang_type)
         inputs = [[self.origin_token2id[i] for i in sentence.split(' ')]]
         inputs = tf.keras.preprocessing.sequence.pad_sequences(inputs, maxlen=int(self.origin_max_len), padding='post')
         inputs = tf.convert_to_tensor(inputs)

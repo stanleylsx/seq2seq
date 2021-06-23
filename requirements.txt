@@ -2,3 +2,4 @@ pandas==1.2.4
 tensorflow-gpu==2.3.0
 tqdm==4.61.0
 sklearn==0.0
+jieba==0.42.1

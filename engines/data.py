@@ -6,7 +6,6 @@
 # @Software: PyCharm
 import tensorflow as tf
 import pandas as pd
-import re
 import os
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
@@ -77,10 +76,12 @@ class TranslationDataManager:
 
     def get_dataset(self):
         dataset = pd.read_csv(self.data_path, encoding='utf-8')[:30000]
-        dataset['origin'] = dataset.origin.apply(preprocess_sentence)
+        origin_lang_type = configs['origin_lang_type']
+        target_lang_type = configs['target_lang_type']
+        dataset['origin'] = dataset.origin.apply(lambda lang: preprocess_sentence(lang, origin_lang_type))
         origin_tensor, self.origin_vocab_size, self.origin_token2id, self.origin_id2token, self.origin_max_len = \
             self.tokenize(dataset['origin'], 'origin')
-        dataset['target'] = dataset.target.apply(preprocess_sentence)
+        dataset['target'] = dataset.target.apply(lambda lang: preprocess_sentence(lang, target_lang_type))
         target_tensor, self.target_vocab_size, self.target_token2id, self.target_id2token, self.target_max_len = \
             self.tokenize(dataset['target'], 'target')
         origin_tensor_train, origin_tensor_val, target_tensor_train, target_tensor_val = train_test_split(
