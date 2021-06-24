@@ -48,7 +48,7 @@ def train(data_manager, logger):
                 decoder_hidden = encoder_hidden
                 batch_size = int(tf.shape(target_batch_train)[0])
                 decoder_input = tf.expand_dims([target_token2id['[start]']] * batch_size, 1)
-                indies = len(target_batch_train[1].numpy())
+                indies = int(tf.shape(target_batch_train)[1])
                 for t in range(1, indies):
                     # 将编码器输出 （enc_output） 传送至解码器
                     predictions, decoder_hidden, _ = decoder(decoder_input, decoder_hidden, encoder_output)
