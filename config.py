@@ -16,13 +16,13 @@ CUDA_VISIBLE_DEVICES = 0
 configs = {
     # 任务选择
     'task': 'translation',
-    'data_path': 'datasets/translation/spa-eng/spa-eng.csv',
-    'token_dir': 'datasets/translation/spa-eng/',
+    'data_path': 'datasets/translation/zh-eng/zh-eng.csv',
+    'token_dir': 'datasets/translation/zh-eng/',
     'batch_size': 64,
 
     # 以下设置用在机器翻译中
     # 原始语言
-    'origin_lang_type': 'spa',
+    'origin_lang_type': 'zh',
     # 目标语言
     'target_lang_type': 'eng',
 
@@ -44,7 +44,7 @@ configs = {
     # 最多保存max_to_keep个模型
     'max_to_keep': 1,
     # 模型保存的文件夹
-    'checkpoints_dir': 'model/seq2seq',
+    'checkpoints_dir': 'model/seq2seq-zh-eng',
     # 模型保存的名字
-    'checkpoint_name': 'seq2seq',
+    'checkpoint_name': 'seq2seq-zh-eng',
 }
